@@ -1,0 +1,84 @@
+{
+	"folders": [
+		{
+			"name": "ECGAgent",
+			"path": "ECGAgent"
+		},
+		{
+			"name": "ECGGateway",
+			"path": "ECGGateway"
+		},
+		{
+			"name": "ECGShared",
+			"path": "ECGShared"
+		},
+		{
+			"name": "ECGRelay",
+			"path": "ECGRelay"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"fstream": "cpp",
+			"iosfwd": "cpp",
+			"istream": "cpp",
+			"limits": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"algorithm": "cpp",
+			"iostream": "cpp",
+			"optional": "cpp",
+			"ostream": "cpp",
+			"system_error": "cpp",
+			"array": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"deque": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"new": "cpp",
+			"string_view": "cpp",
+			"atomic": "cpp",
+			"cmath": "cpp",
+			"memory": "cpp",
+			"typeinfo": "cpp",
+			"*.tpp": "cpp",
+			"*.impl": "cpp",
+			"exception": "cpp",
+			"bitset": "cpp",
+			"cctype": "cpp",
+			"chrono": "cpp",
+			"clocale": "cpp",
+			"codecvt": "cpp",
+			"condition_variable": "cpp",
+			"cstdarg": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"cwctype": "cpp",
+			"functional": "cpp",
+			"iterator": "cpp",
+			"map": "cpp",
+			"memory_resource": "cpp",
+			"numeric": "cpp",
+			"random": "cpp",
+			"ratio": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"mutex": "cpp",
+			"stdexcept": "cpp",
+			"thread": "cpp",
+			"cfenv": "cpp",
+			"cinttypes": "cpp",
+			"variant": "cpp",
+			"serstream": "cpp"
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ECGShared",
+  "version": "1.0.1",
+  "description": "ECG Shared Library",
+  "dependencies": {
+    "greiman/SdFat": "^2.2.3",
+    "bblanchon/StreamUtils": "^1.9.0",
+    "robtillaart/UUID": "^0.1.6",
+    "sandeepmistry/LoRa": "@^0.8.0"
+  },
+  "includeDir": "include",
+  "srcDir": "src",
+  "frameworks": "arduino",
+  "platforms": "renesas-ra"
+}

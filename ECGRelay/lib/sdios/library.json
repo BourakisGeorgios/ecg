@@ -1,0 +1,10 @@
+{
+  "name": "sdios",
+  "version": "0.0.1",
+  "description": "sdios",
+  "dependencies": {},
+  "includeDir": "include",
+  "srcDir": "src",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
