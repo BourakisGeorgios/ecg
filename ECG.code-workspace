@@ -78,7 +78,12 @@
 			"cfenv": "cpp",
 			"cinttypes": "cpp",
 			"variant": "cpp",
-			"serstream": "cpp"
+			"serstream": "cpp",
+			"bit": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"set": "cpp",
+			"unordered_set": "cpp"
 		}
 	}
 }

@@ -30,13 +30,7 @@ protected:
     LoRaBus *lora;
     DeviceInfo deviceInfo;
 
-    void registerSystem(BaseSystem *system) {
-        int array[5] = {1,2,5,4,5};
-
-        int *arrayPtr = array;
-
-         *(arrayPtr+6) = 5;
-    }
+    void registerSystem(BaseSystem *system);
     std::vector<MessageBus *> getMessageBuses();
     virtual MessageHandling handleMessage(BaseSystem *bus, CommandMessage *message) = 0;
     virtual StorageState getStorageState();

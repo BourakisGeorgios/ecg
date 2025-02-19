@@ -31,8 +31,6 @@ void setup()
   Serial.begin(9600);
   Serial1.begin(9600);
 
-  delay(1000);
-
   if (Serial) {
     cout << "Initializing LoRa Relay." << endl;
   }
@@ -40,13 +38,14 @@ void setup()
   LoRa.setPins(M_DEVICE_LORA_NSS_PIN, M_DEVICE_LORA_NRESET_PIN, M_DEVICE_LORA_DIO0_PIN);
   initialized = !LoRa.begin(M_DEVICE_LORA_DEFAULT_FREQ);
 
-
   Serial1.write((byte)(initialized ? 0x1 : 0x0));
 
   if (!initialized)
   {
     while (true)
     {
+      
+      Serial1.write((byte)(initialized ? 0x1 : 0x0));
       delay(500);
       DEBUG("LoRa Antenna failed to initialize. " << endl);
     }

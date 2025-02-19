@@ -18,20 +18,22 @@ bool LoRaBus::init()
 {
     Serial.begin(M_DEVICE_COM_SERIAL_BAUDRATE);
 
-    Serial1.write(0x1);
-    int remainingAttempts = 10;
+    int remainingAttempts = 20;
+    bool gotResponse = false;
 
-    while (!this->initialized && remainingAttempts != 0)
+    while (!this->initialized && !gotResponse && remainingAttempts != 0)
     {
         remainingAttempts--;
         while (Serial1.available())
         {
+            gotResponse = true;
             uint8_t byteRead = Serial1.read();
             this->initialized = byteRead == 0x1;
+            remainingAttempts = 0;
             break;
         }
 
-        if (!this->initialized)
+        if (!this->initialized && !gotResponse)
         {
             delay(100);
         }

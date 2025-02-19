@@ -1,33 +1,22 @@
-#include "modules/ECG.h"
+#ifdef M_DEVICE_FAKE_ECG
 
-void ECG::loop()
+#include "modules/FakeECG.h"
+#include <stdlib.h>
+
+int fakeAnalogRead() {
+    return 0;
+}
+
+void FakeECG::loop()
 {
     BaseECG::loop();
 }
 
-void ECG::read()
+void FakeECG::read()
 {
-    PinStatus ecgLoPlus = digitalRead(this->digitalLoPlusPinIn);
-    PinStatus ecgLoMinus = digitalRead(this->digitalLoMinusPinIn);
     electrodeReadyForCallback = false;
 
-    // if (ecgLoMinus == HIGH || ecgLoPlus == HIGH)
-    // {
-    //     if (!this->isEcgDetached)
-    //         this->electrodeReadyForCallback = true;
-    //     this->isEcgDetached = true;
-    //     this->reset();
-    // }
-    // else
-    // {
-    //     if (this->isEcgDetached)
-    //         this->electrodeReadyForCallback = true;
-    //     this->isEcgDetached = false;
-    // }
-
-    // if (!this->isEcgDetached)
-    // {
-    this->ecgAnalogOutput = analogRead(this->analogPinOut);
+    this->ecgAnalogOutput = fakeAnalogRead();
 
     if (this->ecgAnalogOutput > M_DEVICE_ECG_UPPER_THRESHOLD && !this->ignoreReading)
     {
@@ -54,7 +43,7 @@ void ECG::read()
     this->rawReadyForCallback = true;
 }
 
-void ECG::reset()
+void FakeECG::reset()
 {
     // this->bpm = 0.0;
     // this->isEcgDetached = true;
@@ -65,14 +54,13 @@ void ECG::reset()
     // this->pulseInterval = 1;
 }
 
-void ECG::calculateBpm()
+void FakeECG::calculateBpm()
 {
-    if (this->pulseInterval == 0)
-    {
-        return;
-    }
+    int num = rand() % 2;
 
-    this->bpm = (1.0 / this->pulseInterval) * M_DEVICE_ECG_MINUTE_SECONDS * M_DEVICE_ECG_SECOND_MILLIS;
+    this->bpm = 78 + num;
 
     this->bpmReadyForCallback = true;
 }
+
+#endif
