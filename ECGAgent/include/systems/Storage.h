@@ -60,11 +60,15 @@ public:
     StorageState getState();
     void write(CommandMessage message);
     void loop();
-    StorageType getType();
+    StorageType getStorageType();
     StorageFs getFs();
     uint32_t getTotalSpace();
     uint32_t getUsedSpace();
     uint32_t getFreeSpace();
+
+    SystemType getType() override {
+        return SystemType::STORAGE;
+    }
 
     bool isType(SystemType type) override
     {

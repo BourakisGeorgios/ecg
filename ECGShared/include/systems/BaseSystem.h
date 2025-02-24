@@ -18,6 +18,7 @@ protected:
     std::vector<byte> supportedOutCommands;
     bool initialized;
     bool connected;
+    bool canTransmit = false;
     uint8_t deviceId[6];
     virtual bool isAlive()
     {
@@ -48,6 +49,7 @@ public:
     virtual void disconnect()
     {
         this->connected = false;
+        this->canTransmit = false;
         memset(this->deviceId, 0, 6);
         this->getOutPrint()->flush();
     }
@@ -62,7 +64,18 @@ public:
         memcpy(targetArray, deviceId, 6);
     }
 
+    bool getCanTransmit() {
+        return this->canTransmit;
+    }
+
+    void readyToTransmit() {
+        this->canTransmit = true;
+    }
+
     virtual bool isType(SystemType type) = 0;
+    virtual SystemType getType() {
+        return SystemType::NONE;
+    }
     virtual void loop()
     {
         if (!isAlive() && connected)

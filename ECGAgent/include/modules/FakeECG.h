@@ -16,8 +16,6 @@ private:
     int beats[500] = {0};
     int beatIndex = 0;
 
-    int ecgAnalogOutput = 0;
-
 protected:
     virtual void read();
     virtual void reset();

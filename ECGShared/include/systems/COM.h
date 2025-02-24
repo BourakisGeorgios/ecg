@@ -11,7 +11,7 @@ class COM : public BaseSystem
 protected:
     bool isAlive() override
     {
-        return Serial;
+        return true;
     }
 
 public:
@@ -37,6 +37,9 @@ public:
     bool isType(SystemType type) override
     {
         return type == SystemType::COM;
+    }
+    SystemType getType() override {
+        return SystemType::COM;
     }
 };
 

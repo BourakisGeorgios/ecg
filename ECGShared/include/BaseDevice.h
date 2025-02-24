@@ -37,6 +37,8 @@ protected:
     virtual void onComHandshaked() {
         
     }
+    void dispatchMessage(BaseSystem *system, CommandMessage *message, bool safe);
+    void dispatchMessage(CommandMessage *message, bool safe);
 
 public:
     virtual void getDeviceId(uint8_t *deviceId) = 0;
@@ -46,6 +48,7 @@ public:
     void processMessage(BaseSystem *bus, CommandMessage *message);
     void dispatchMessage(BaseSystem *bus, CommandMessage *message);
     void dispatchMessage(CommandMessage *message);
+    bool isHandshaked(BaseSystem *system);
     DeviceInfo& getDeviceInfo() {
         return deviceInfo;
     }

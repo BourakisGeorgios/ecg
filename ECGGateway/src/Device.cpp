@@ -31,23 +31,10 @@ void DeviceImpl::init()
 
 void DeviceImpl::onComHandshaked()
 {
-    if (this->com->isConnected())
-    {
-        if (this->lora->isInitialized())
-        {
-            this->announceTimer->start();
-            // this->announce();
-        }
-    }
 }
 
 void DeviceImpl::announce()
 {
-    RTCTime time;
-    RTC.getTime(time);
-    dispatchMessage(
-        this->lora,
-        createMessage(Command::Discover, time.getUnixTime(), deviceInfo.deviceId));
 }
 
 void DeviceImpl::getDeviceId(uint8_t *deviceIdArray)
@@ -69,83 +56,51 @@ MessageHandling DeviceImpl::handleMessage(BaseSystem *system, CommandMessage *me
     }
     else
     {
-        while (1)
-            ;
+        return MessageHandling::MessageContinue;
     }
 
-    dispatchMessage(targetSystem, message);
+    dispatchMessage(targetSystem, message, true);
+
+    switch (message->command)
+    {
+    case Command::EcgBpm:
+    {
+        auto payload = static_cast<EcgBpmPayload*>(message->payload);
+        delete payload;
+        break;
+    }
+    case Command::EcgRaw:
+    {
+        auto payload = static_cast<EcgRawPayload*>(message->payload);
+        delete payload;
+        break;
+    }
+    case Command::EcgElectrodeAttached:
+    {
+        auto payload = static_cast<EcgElectrodeStatusPayload*>(message->payload);
+        delete payload;
+        break;
+    }
+    default:
+        break;
+    }
+
     return MessageHandling::MessageHandled;
-
-    // switch (message->command)
-    // {
-    // case Command::IdentifyRequest:
-    // {
-    //     system->connect(message->targetDeviceId);
-
-    //     RTCTime time;
-    //     RTC.getTime(time);
-    //     auto response = createMessage(Command::IdentifyResponse, time.getUnixTime(), new IdentifyPayload(deviceId), deviceId);
-    //     dispatchMessage(system, response);
-
-    //     RTC.getTime(time);
-    //     auto timeRequest = createMessage(Command::TimeRequest, time.getUnixTime(), deviceId);
-    //     dispatchMessage(system, timeRequest);
-    //     break;
-    // }
-    // case Command::TimeResponse:
-    // {
-    //     static int i = 0;
-    //     TimePayload *payload = static_cast<TimePayload*>(message->payload);
-    //     RTCTime time(payload->data);
-    //     RTC.setTime(time);
-    //     break;
-    // }
-    // case Command::InfoRequest:
-    // {
-    //     auto *infoPayload = new InfoPayload();
-    //     infoPayload->info = DeviceInfoPayload(deviceId);
-    //     infoPayload->com = COMInfoPayload{
-    //         .initialized = com->isInitialized(),
-    //         .connected = com->isConnected(),
-    //         .isCurrent = system->isType(SystemType::COM),
-    //     };
-    //     infoPayload->connection = ConnectionInfoPayload{
-    //         .initialized = lora->isInitialized(),
-    //         .connected = lora->isConnected(),
-    //         .isCurrent = system->isType(SystemType::LORA),
-    //         .mode = lora->getMode(),
-    //     };
-    //     infoPayload->storage = StorageInfoPayload{
-    //         .initialized = false,
-    //         .state = {
-    //             .status = StorageStatus::NOT_PRESENT,
-    //             .type = StorageType::UNKNOWN,
-    //             .fs = StorageFs::UNKNOWN,
-    //             .errorCode = 0,
-    //             .errorSymbol = 0,
-    //             .initTime = 0,
-    //             .totalSize = 0,
-    //             .usedSize = 0,
-    //         },
-    //     };
-    //     infoPayload->uptime = millis();
-    //     RTCTime time;
-    //     RTC.getTime(time);
-    //     dispatchMessage(system, createMessage(Command::InfoResponse, time.getUnixTime(), infoPayload, deviceId));
-    // }
-
-    // default:
-    //     break;
-    // }
-    // delete message;
 }
 
 void DeviceImpl::loop()
 {
-    BaseDevice::loop();
-    if (announceTimer->isStarted())
-    {
-        announceTimer->loop();
+    if (com->getCanTransmit()) {
+        while (Serial1.available()) {
+            int size = Serial1.available();
+            byte *buffer = new byte[size];
+            Serial1.readBytes(buffer, size);
+
+            com->getOutPrint()->write(buffer, size);
+            delete[] buffer;
+        }
+    } else {
+        BaseDevice::loop();
     }
 }
 

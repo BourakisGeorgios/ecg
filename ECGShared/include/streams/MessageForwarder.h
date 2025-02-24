@@ -4,15 +4,20 @@
 #include <Stream.h>
 #include <vector>
 #include "messages/messages.h"
+#include <functional>
 #include "systems/BaseSystem.h"
 
 class MessageForwarder : public Print
 {
 private:
     bool forced = false;
+
 public:
-    MessageForwarder(std::vector<BaseSystem *> &baseSystems) : baseSystems(baseSystems) {}
-    MessageForwarder() : baseSystems() {}
+    MessageForwarder(std::vector<BaseSystem *> &baseSystems) : baseSystems(baseSystems) {
+    }
+    MessageForwarder() : baseSystems() {
+    }
+
     MessageForwarder(BaseSystem *system) : forced(true)
     {
         baseSystems = std::vector<BaseSystem *>({system});
@@ -55,9 +60,16 @@ public:
         return written;
     }
 
-    size_t write(CommandMessage &msg)
-    {
+    size_t write_unsafe(CommandMessage &msg) {
+        return write(msg, false);
+    }
 
+    size_t write(CommandMessage &msg) {
+        return write(msg, true);
+    }
+
+    size_t write(CommandMessage &msg, bool safe)
+    {
         size_t written = 0;
         size_t headerSize = msg.messageSize - msg.payloadSize;
         IPayload *payload = msg.payload;
@@ -65,6 +77,10 @@ public:
         const uint8_t *headerData = reinterpret_cast<const uint8_t *>(&msg);
         for (auto baseSystem : baseSystems)
         {
+            if (safe && !baseSystem->getCanTransmit()) {
+                continue;
+            }
+
             if (!(baseSystem->isConnected() || forced) || !baseSystem->isSupportedOutCommand((byte)msg.command))
             {
                 continue;

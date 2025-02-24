@@ -11,7 +11,12 @@ void BaseDevice::registerSystem(BaseSystem *system)
 
 void BaseDevice::dispatchMessage(BaseSystem *system, CommandMessage *message)
 {
-    MessageForwarder(system).write(*message);
+    this->dispatchMessage(system, message, true);
+}
+
+void BaseDevice::dispatchMessage(BaseSystem *system, CommandMessage *message, bool safe)
+{
+    MessageForwarder(system).write(*message, safe);
     if (message->payload != nullptr)
     {
         delete message->payload;
@@ -21,7 +26,12 @@ void BaseDevice::dispatchMessage(BaseSystem *system, CommandMessage *message)
 
 void BaseDevice::dispatchMessage(CommandMessage *message)
 {
-    messageForwarder->write(*message);
+    dispatchMessage(message, true);
+}
+
+void BaseDevice::dispatchMessage(CommandMessage *message, bool safe)
+{
+    messageForwarder->write(*message, safe);
     if (message->payload != nullptr)
     {
         delete message->payload;
@@ -37,6 +47,16 @@ BaseDevice::BaseDevice(DeviceInfo info, LoRaBuSMode loraBusMode)
     lora = new LoRaBus(this, loraBusMode);
 }
 
+bool BaseDevice::isHandshaked(BaseSystem *system)
+{
+    if (this->systemHandshakeMap.find(system) != this->systemHandshakeMap.end())
+    {
+        this->systemHandshakeMap[system] = false;
+    }
+
+    return this->systemHandshakeMap[system];
+}
+
 std::vector<MessageBus *> BaseDevice::getMessageBuses()
 {
     return std::vector<MessageBus *>(messageBuses);
@@ -44,12 +64,7 @@ std::vector<MessageBus *> BaseDevice::getMessageBuses()
 
 MessageHandling BaseDevice::handleHandshake(BaseSystem *system, CommandMessage *message)
 {
-    if (this->systemHandshakeMap.find(system) != this->systemHandshakeMap.end())
-    {
-        this->systemHandshakeMap[system] = false;
-    }
-
-    if (this->systemHandshakeMap[system])
+    if (isHandshaked(system))
     {
         return MessageHandling::MessageContinue;
     }
@@ -65,12 +80,14 @@ MessageHandling BaseDevice::handleHandshake(BaseSystem *system, CommandMessage *
 
         RTCTime time;
         RTC.getTime(time);
-        auto response = createMessage(Command::IdentifyResponse, time.getUnixTime(), new IdentifyPayload(deviceInfo), deviceId);
-        dispatchMessage(system, response);
+        auto identifyResponsePayload = new IdentifyPayload(deviceInfo);
+        auto response = createMessage(Command::IdentifyResponse, time.getUnixTime(), identifyResponsePayload, deviceId);
+        dispatchMessage(system, response, false);
+        delete identifyResponsePayload;
 
         RTC.getTime(time);
         auto timeRequest = createMessage(Command::TimeRequest, time.getUnixTime(), deviceId);
-        dispatchMessage(system, timeRequest);
+        dispatchMessage(system, timeRequest, false);
         return MessageHandling::MessageHandled;
     }
     case Command::TimeResponse:
@@ -79,6 +96,7 @@ MessageHandling BaseDevice::handleHandshake(BaseSystem *system, CommandMessage *
         TimePayload *payload = static_cast<TimePayload *>(message->payload);
         RTCTime time(payload->data);
         RTC.setTime(time);
+        delete payload;
         return MessageHandling::MessageHandled;
     }
     case Command::InfoRequest:
@@ -104,8 +122,10 @@ MessageHandling BaseDevice::handleHandshake(BaseSystem *system, CommandMessage *
         infoPayload->uptime = millis();
         RTCTime time;
         RTC.getTime(time);
-        dispatchMessage(system, createMessage(Command::InfoResponse, time.getUnixTime(), infoPayload, deviceId));
+        dispatchMessage(system, createMessage(Command::InfoResponse, time.getUnixTime(), infoPayload, deviceId), false);
         this->systemHandshakeMap[system] = true;
+        system->readyToTransmit();
+        delete infoPayload;
         onComHandshaked();
         return MessageHandling::MessageHandled;
     }
@@ -116,7 +136,11 @@ MessageHandling BaseDevice::handleHandshake(BaseSystem *system, CommandMessage *
 
 bool BaseDevice::isOk()
 {
+#ifdef M_DEVICE_NO_COM
+    return true;
+#else
     return com->isInitialized();
+#endif
 }
 
 void BaseDevice::processMessage(BaseSystem *bus, CommandMessage *message)
@@ -133,7 +157,9 @@ void BaseDevice::processMessage(BaseSystem *bus, CommandMessage *message)
 
 void BaseDevice::init()
 {
+#ifndef M_DEVICE_NO_COM
     initSerial();
+#endif
     initLoRa();
 }
 
@@ -157,6 +183,10 @@ void BaseDevice::loop()
     {
         messageBus->getSystem()->loop();
         messageBus->loop();
+        if (!messageBus->getSystem()->getCanTransmit())
+        {
+            this->systemHandshakeMap[messageBus->getSystem()] = false;
+        }
     }
     lora->loop();
 }
@@ -181,6 +211,8 @@ bool BaseDevice::initLoRa()
     {
         registerSystem(lora);
     }
+
+    systemHandshakeMap[lora] = true;
 
     return loraInit;
 }

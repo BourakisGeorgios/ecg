@@ -137,7 +137,7 @@ void Storage::loop()
     }
 }
 
-StorageType Storage::getType()
+StorageType Storage::getStorageType()
 {
     switch (sd.card()->type())
     {
@@ -195,7 +195,7 @@ StorageState Storage::getState()
 {
     return {
         this->status,
-        this->getType(),
+        this->getStorageType(),
         this->getFs(),
         sd.sdErrorCode(),
         sd.sdErrorData(),

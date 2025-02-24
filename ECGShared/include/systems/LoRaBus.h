@@ -15,8 +15,6 @@ class LoRaBus : public BaseSystem
 {
 private:
     LoRaBuSMode mode;
-    LoRaStream *stream;
-    LoRaClass *lora;
     BaseTimer *discoverTimer;
     BaseDevice* device;
 
@@ -37,6 +35,7 @@ public:
             (byte)Command::Connect,
             (byte)Command::Ping,
             (byte)Command::Pong,
+            (byte)Command::EcgBpm,
         };
 
         std::initializer_list<byte> gatewayCommands = {
@@ -60,15 +59,12 @@ public:
             this->supportedInCommands.assign(gatewayCommands);
             this->supportedOutCommands.assign(nodeCommands);
         }
-        this->lora = &LoRa;
-        this->stream = new LoRaStream(lora);
         this->mode = mode;
         this->discoverTimer = new InaccurateTimer(1000, new Callback(this, &LoRaBus::broadcastDiscover));
         this->device = device;
     }
     ~LoRaBus()
     {
-        delete stream;
     }
     bool init();
     void loop();
@@ -80,6 +76,9 @@ public:
 
     bool isType(SystemType type) override {
         return type == SystemType::LORA;
+    }
+    SystemType getType() override {
+        return SystemType::LORA;
     }
 };
 

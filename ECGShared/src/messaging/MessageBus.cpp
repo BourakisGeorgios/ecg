@@ -2,6 +2,7 @@
 #include "sharedConfig.h"
 #include "BaseDevice.h"
 
+
 template <typename T>
 bool MessageBus::readBytes(T *dest, size_t size)
 {
@@ -36,34 +37,45 @@ CommandMessage *MessageBus::recv()
     {
         if (this->messageBuffer == nullptr)
         {
-            this->messageBuffer = new byte[stream->available()];
-            this->remainingBytes = stream->readBytes(this->messageBuffer, stream->available());
+            this->bufferLength = stream->available();
+            this->messageBuffer = new byte[bufferLength];
+            this->remainingBytes = stream->readBytes(this->messageBuffer, bufferLength);
         }
         else if (stream->available() > 0)
         {
-            byte *newBuffer = new byte[stream->available()];
-            int newBytesRead = stream->readBytes(newBuffer, stream->available());
-            byte *replacementBuffer = new byte[this->remainingBytes + newBytesRead];
+            int bytesAvailable = stream->available();
+            byte *newBuffer = new byte[bytesAvailable];
+            int newBytesRead = stream->readBytes(newBuffer, bytesAvailable);
+            byte *replacementBuffer;
+            int startingIndex = 0;
             if (this->remainingBytes > 0)
             {
-                memcpy(replacementBuffer, this->messageBuffer, this->remainingBytes);
+                startingIndex = bufferLength;
+                replacementBuffer = new byte[this->bufferLength + newBytesRead];
+                memcpy(replacementBuffer, this->messageBuffer, bufferLength);
             }
             else
             {
+                replacementBuffer = new byte[newBytesRead];
+                startingIndex = 0;
+                remainingBytes = 0;
                 midx = 0;
             }
-            memcpy(replacementBuffer + this->remainingBytes, newBuffer, newBytesRead);
+            memcpy(replacementBuffer + startingIndex, newBuffer, newBytesRead);
             delete[] this->messageBuffer;
             delete[] newBuffer;
             this->messageBuffer = replacementBuffer;
             this->remainingBytes += newBytesRead;
+            this->bufferLength = startingIndex + newBytesRead;
+            
         }
+
 
         while (this->remainingBytes > 0 && !this->commandMessageReceived)
         {
             if (!this->recvInProgress)
             {
-                clear();
+                clear(false);
                 this->recvInProgress = true;
             }
 
@@ -119,38 +131,35 @@ CommandMessage *MessageBus::parseCommand()
         receivingMessage = constructMessage();
         break;
     }
-    case Command::Unkn:
-    default:
+    case Command::EcgBpm:
     {
-        StringPrint sp;
-        ArduinoOutStream out(sp);
-        out << "Unknown command received: " << endl
-            << "Command     : " << hex << (byte)this->commandReceived << dec
-            << "Payload Size: " << this->payloadSizeReceived
-            << "Data        : " << endl;
-        for (int i = 0; i < this->payloadSizeReceived; i++)
-        {
-            out << hex << setw(2) << uppercase << this->payloadBuffer[i] << dec;
-            if (i % 16 == 0)
-            {
-                out << endl;
-            }
-        }
-        this->commandReceived = Command::Debug;
-        receivingMessage = constructMessage(new StringPayload(sp.str()));
+        auto bpm = reinterpret_cast<double *>(this->payloadBuffer);
+        EcgBpmPayload *bpmPayload = new EcgBpmPayload(*bpm);
+        receivingMessage = constructMessage(bpmPayload);
+        break;
     }
+    default:
+        break;
     }
 
     if (this->payloadBuffer != nullptr)
     {
-        delete this->payloadBuffer;
+        delete[] this->payloadBuffer;
         this->payloadBuffer = nullptr;
     }
     return receivingMessage;
 }
 
-void MessageBus::clear()
+void MessageBus::clear(bool fatal)
 {
+    if (fatal)
+    {
+        this->completeConsume();
+    }
+    else
+    {
+        midx = 0;
+    }
     recvInProgress = false;
     commandMessageReceived = false;
     hasCommandReceived = false;
@@ -167,10 +176,9 @@ void MessageBus::clear()
     sizeReceived = 0;
     timeReceived = 0;
     rtcTimeReceived = 0;
-    midx = 0;
     if (payloadBuffer != nullptr)
     {
-        delete payloadBuffer;
+        delete[] payloadBuffer;
         payloadBuffer = nullptr;
     }
 }
@@ -190,6 +198,7 @@ bool MessageBus::readHeaders()
             clear();
             return false;
         }
+        
         commandReceived = (Command)commandByte;
         hasCommandReceived = true;
     }
@@ -206,6 +215,7 @@ bool MessageBus::readHeaders()
             clear();
             return false;
         }
+
         hasSizeReceived = true;
     }
 
@@ -215,6 +225,7 @@ bool MessageBus::readHeaders()
         {
             return false;
         }
+        
         hasOriginDeviceIdReceived = true;
     }
     else if (!hasTargetDeviceIdReceived)
@@ -223,6 +234,8 @@ bool MessageBus::readHeaders()
         {
             return false;
         }
+
+        
         hasTargetDeviceIdReceived = true;
     }
     else if (!hasTimeReceived)
@@ -231,6 +244,7 @@ bool MessageBus::readHeaders()
         {
             return false;
         }
+        
         hasTimeReceived = true;
     }
 
@@ -240,6 +254,8 @@ bool MessageBus::readHeaders()
         {
             return false;
         }
+
+        
         hasRtcTimeReceived = true;
     }
     else if (!hasPayloadSizeReceived)
@@ -289,15 +305,20 @@ void MessageBus::completeConsume()
     this->commandMessageReceived = true;
     if (this->remainingBytes > 0)
     {
+        
         byte *newBuffer = new byte[this->remainingBytes];
-        memcpy(newBuffer, this->messageBuffer + this->midx, this->remainingBytes);
+        memcpy(newBuffer, this->messageBuffer + this->midx, this->bufferLength - this->midx);
+        this->remainingBytes = this->bufferLength - this->midx;
+        this->bufferLength = this->remainingBytes;
         delete[] this->messageBuffer;
         this->messageBuffer = newBuffer;
+        
     }
     else
     {
         delete[] this->messageBuffer;
         this->messageBuffer = nullptr;
+        this->bufferLength = 0;
         this->remainingBytes = 0;
     }
 
@@ -309,7 +330,7 @@ void MessageBus::loop()
     CommandMessage *message = this->recv();
     if (message != nullptr)
     {
-        clear();
+        clear(false);
         this->device->processMessage(this->system, message);
     }
 }

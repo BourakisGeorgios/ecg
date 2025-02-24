@@ -17,6 +17,7 @@ private:
     BaseDevice *device = nullptr;
     BaseSystem* system = nullptr;
     static const int overflowBytesWait = 256;
+    int bufferLength = 0;
     bool commandMessageReceived = false;
     bool recvInProgress = false;
     bool hasCommandReceived = false;
@@ -40,7 +41,7 @@ private:
     byte *payloadBuffer = nullptr;
 
     CommandMessage *parseCommand();
-    void clear();
+    void clear(bool fatal = true);
     bool readHeaders();
     void completeConsume();
     bool isMessageReceivedCompleted()

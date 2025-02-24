@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "Device.h"
+#include <memory>
 
 #include <SPI.h>
 #include <LoRa.h>
@@ -10,52 +11,49 @@
 
 #ifdef M_DEVICE_FAKE_ECG
 #include "modules/FakeECG.h"
-BaseECG* ecg = new FakeECG();
+BaseECG *ecg = new FakeECG();
 #else
 #include "modules/ECG.h"
-BaseECG* ecg = new ECG();
+BaseECG *ecg = new ECG();
 #endif
 
 void onBpmReceived(double bpm, bool electrodesAttached)
 {
-  if (millis() < 15000)
-  {
-    return;
-  }
   RTCTime time;
   RTC.getTime(time);
+  auto payload = new EcgBpmPayload(bpm);
   Device.dispatchMessage(createMessage(
       Command::EcgBpm,
       time.getUnixTime(),
-      new EcgBpmPayload(bpm)));
+      payload));
+
+  delete payload;
 }
 void onElectrodeStatusChanged(bool electrodesAttached)
 {
-  if (millis() < 15000)
-  {
-    return;
-  }
   RTCTime time;
   RTC.getTime(time);
+  auto payload = new EcgElectrodeStatusPayload(electrodesAttached);
   Device.dispatchMessage(createMessage(
       Command::EcgElectrodeAttached,
       time.getUnixTime(),
-      new EcgElectrodeStatusPayload(electrodesAttached)));
+      payload));
+
+  delete payload;
 }
 void onRawMeasurement(int measurement)
 {
-  if (millis() < 15000)
-  {
-    return;
-  }
   RTCTime time;
   RTC.getTime(time);
+
+  auto payload = new EcgRawPayload(measurement);
   Device.dispatchMessage(createMessage(
       Command::EcgRaw,
       time.getUnixTime(),
-      new EcgRawPayload(measurement)));
-}
+      payload));
 
+  delete payload;
+}
 void setup()
 {
   Device.init();

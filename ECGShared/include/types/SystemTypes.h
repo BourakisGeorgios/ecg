@@ -5,7 +5,8 @@ enum class SystemType
 {
     LORA,
     COM,
-    STORAGE
+    STORAGE,
+    NONE
 };
 
 #endif
