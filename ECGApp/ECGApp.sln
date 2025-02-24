@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGLib", "ECGLib\ECGLib.csproj", "{400A6C96-24E7-422E-AB05-89268906D5DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECGApp", "ECGApp\ECGApp.csproj", "{6EE8A8A4-C60F-49BF-93A2-12C6E5E17B7D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{400A6C96-24E7-422E-AB05-89268906D5DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{400A6C96-24E7-422E-AB05-89268906D5DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{400A6C96-24E7-422E-AB05-89268906D5DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{400A6C96-24E7-422E-AB05-89268906D5DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EE8A8A4-C60F-49BF-93A2-12C6E5E17B7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EE8A8A4-C60F-49BF-93A2-12C6E5E17B7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EE8A8A4-C60F-49BF-93A2-12C6E5E17B7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EE8A8A4-C60F-49BF-93A2-12C6E5E17B7D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

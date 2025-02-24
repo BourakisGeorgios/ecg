@@ -1,0 +1,47 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:ECGApp.Controls"
+        xmlns:i="https://github.com/projektanker/icons.avalonia">
+    <Design.PreviewWith>
+        <StackPanel>
+            <controls:DeviceItem DebugDevice="Controller"/>
+            <Separator />
+            <controls:DeviceItem DebugDevice="Node"/>
+            <Separator />
+            <controls:DeviceItem DebugDevice="Gateway"/>
+        </StackPanel>
+
+    </Design.PreviewWith>
+
+
+    <Style Selector="controls|DeviceItem">
+        <Style Selector="^ StackPanel>StackPanel.SubHeading>TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+        <Style Selector="^ StackPanel>.SubHeading>i|Icon">
+            <Setter Property="FontSize" Value="20" />
+        </Style>
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel Margin="0" Width="200">
+                    <WrapPanel>
+                        <i:Icon VerticalAlignment="Center" Value="{Binding DeviceIcon, RelativeSource={RelativeSource TemplatedParent}}" FontSize="36" />
+                        <Label Padding="10 0 0 0" FontSize="28" VerticalAlignment="Center"
+                               Content="{Binding Device.Type, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" Classes="SubHeading">
+                        <i:Icon VerticalAlignment="Center" Value="{DynamicResource IconId}" />
+                        <Label Padding="2 0 0 0" Content="{Binding Device.DeviceId, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Classes="SubHeading" IsVisible="{Binding HasDevices, RelativeSource={RelativeSource TemplatedParent}}">
+                        <i:Icon VerticalAlignment="Center" Value="{DynamicResource IconRaspberryPi}" />
+                        <TextBlock Padding="2 0 0 0">Devices: </TextBlock>
+                        <Label Content="{Binding SubDeviceCount, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

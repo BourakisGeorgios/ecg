@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ECGApp.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:ECGApp.Controls"
+        mc:Ignorable="d"
+        d:DesignWidth="1280"
+        d:DesignHeight="720"
+        MinHeight="720"
+        MinWidth="1280"
+        x:Class="ECGApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="ECGApp">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <SplitView IsPaneOpen="True"
+               OpenPaneLength="250"
+               CompactPaneLength="48"
+               Background="#1c1c1c"
+               PaneBackground="#1e1e1e"
+               DisplayMode="CompactInline">
+        <SplitView.Pane>
+            <ListBox Background="#1a1a1a" SelectedItem="{Binding SelectedDevice}" ItemsSource="{Binding Devices}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <controls:DeviceItem Device="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </SplitView.Pane>
+        <SplitView.Content>
+            <Border Margin="20 35 0 0" Padding="25">
+                <!--<Border Background="White" Margin="20 80 20 20" Padding="20" CornerRadius="8"
+                BoxShadow="0 0 10 0 #05000000, 0 0 10 0 #05000000, 0 0 10 0 #05000000, 0 0 10 0 #05000000"
+                MaxWidth="900" MaxHeight="600">-->
+                <ContentControl Content="{Binding SelectedDeviceView}"  />
+                <!--</Border>-->
+            </Border>
+            <!-- <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch"> -->
+            <!--     -->
+            <!--     ~1~ <TextBlock Text="{Binding ConnectedDevices}" HorizontalAlignment="Center" VerticalAlignment="Center" /> @1@ -->
+            <!--     ~1~ <Button Content="Add" Command="{Binding ConnectCommand}"></Button> @1@ -->
+            <!-- </StackPanel> -->
+
+        </SplitView.Content>
+    </SplitView>
+
+</Window>

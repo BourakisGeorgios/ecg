@@ -1,0 +1,23 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ECGApp.App"
+             xmlns:local="using:ECGApp"
+             RequestedThemeVariant="Default">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="Controls/DeviceItem.axaml" />
+    </Application.Styles>
+
+    <Application.Resources>
+        <x:String x:Key="IconRaspberryPi">mdi-raspberry-pi</x:String>
+        <x:String x:Key="IconId">mdi-id-card</x:String>
+    </Application.Resources>
+
+
+</Application>

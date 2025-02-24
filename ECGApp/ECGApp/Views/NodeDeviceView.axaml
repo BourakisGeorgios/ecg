@@ -1,0 +1,42 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:vms="using:ECGApp.ViewModels"
+             xmlns:controls="clr-namespace:ECGApp.Controls"
+             d:DesignHeight="640"
+             d:DesignWidth="1240"
+             x:Class="ECGApp.Views.NodeDeviceView"
+             x:DataType="vms:NodeDeviceViewModel">
+    <UserControl.DataContext>
+        <vms:NodeDeviceViewModel />
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="75" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="250" />
+        </Grid.ColumnDefinitions>
+        <controls:DeviceItem Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="5 0 0 0"
+                             Device="{Binding Device}" />
+        <WrapPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <Label Content="BPM" FontSize="36" Width="100" HorizontalAlignment="Left" />
+            <Label Content="{Binding CurrentBpm}" FontSize="36" HorizontalAlignment="Right" />
+        </WrapPanel>
+        <Border Grid.Row="1" Grid.ColumnSpan="5" CornerRadius="5" BorderThickness="2" BorderBrush="#1c1c1c">
+            <lvc:CartesianChart
+                AnimationsSpeed="0"
+                TooltipPosition="Hidden"
+                YAxes="{Binding YAxes}"
+                Series="{Binding Series}">
+            </lvc:CartesianChart>
+        </Border>
+    </Grid>
+
+
+</UserControl>
